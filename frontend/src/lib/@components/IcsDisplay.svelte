@@ -6,7 +6,11 @@
 	export let replace = false;
 	export let scrollTop = 0;
 
-	let display = createHighLight(classString, Number(PUBLIC_MATCH_COUNT_HIGHLIGHT), replace);
+	const display = createHighLight(
+		classString,
+		Number.parseInt(PUBLIC_MATCH_COUNT_HIGHLIGHT),
+		replace
+	);
 
 	let self: HTMLElement;
 

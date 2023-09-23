@@ -59,9 +59,8 @@ export const apiRequest = createApiRequestStore();
  */
 export const createHighLight = (classString: string, maxMatches = 1000, doReplace = false) => {
 	return derived([icsData, _regex, replace], ([ics, regex, replacement], set) => {
-		if (ics.match(regex)?.length ?? 0 > maxMatches) {
-			set(escapeHtml(ics));
-			return;
+		if ((ics.match(regex)?.length ?? 0) > maxMatches) {
+			return set(escapeHtml(ics));
 		}
 
 		const highlightSecurityId = crypto.randomUUID();
