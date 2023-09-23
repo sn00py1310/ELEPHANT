@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { Calendar } from 'calendar';
 	import dayjs from 'dayjs';
+	import type { FullCalendar, CalendarComponent } from 'ical';
 	import * as ical from 'ical';
 	import { RRule } from 'rrule';
-	import type { Entry } from './Ical';
+
+	type Entry = Pick<
+		CalendarComponent,
+		'start' | 'description' | 'summary' | 'location' | 'end' | 'uid' | 'url' | 'exdate' | 'rrule'
+	> & { date: Date };
 
 	export let calendar: string | null = null;
 	export let full = false;
@@ -22,7 +27,7 @@
 
 	const generate = (calender: string) => {
 		data = [];
-		let icsJSON: ical.FullCalendar;
+		let icsJSON: FullCalendar;
 		try {
 			icsJSON = ical.parseICS(calender);
 		} catch (error) {
@@ -34,8 +39,6 @@
 				let date: Date = new Date(start ?? '');
 				if (!date) return;
 				date.setHours(0, 0, 0, 0);
-
-				if (!description || !summary || !location || !end || !start || !uid || !url || date) return;
 
 				data.push({
 					description,
