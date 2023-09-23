@@ -6,7 +6,7 @@
 	<h2>
 		{$page.status}
 	</h2>
-	<h1>Ein Fehler ist aufgetreten</h1>
+	<h1>An error occurred</h1>
 	<p>
 		{$page.error?.message}
 	</p>
