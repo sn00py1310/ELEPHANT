@@ -1,6 +1,6 @@
 import { derived, writable, get } from 'svelte/store';
-import type { SimpleReplacement } from '../@components/ApiRequest/Api';
-import { escapeHtml } from '../@util/escape.util';
+import type { SimpleReplacement } from '../@types/Api';
+import { escapeHtml } from '../@util';
 
 export const icsData = writable('');
 export const regex = writable('');
@@ -20,14 +20,14 @@ export const newIcsData = derived([icsData, _regex, replace], ([ics, regex, repl
 );
 
 const createApiRequestStore = () => {
-	let last: SimpleReplacement[] = [];
+	let last: (SimpleReplacement | null)[] = [];
 	const { subscribe } = derived([_regex, replace], ([{ source }, replacement]) => {
 		last[0] = {
 			mode: 'globalRegex',
 			replacement,
 			pattern: source
 		};
-		return last;
+		return last as SimpleReplacement[];
 	});
 
 	return {
