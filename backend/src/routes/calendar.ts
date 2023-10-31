@@ -45,17 +45,16 @@ router.put("/:id/settings", async function (req: Request, res: Response) {
   let createCalendar = plainToClass(CreateCalendar, req.body);
   let errors = await validate(createCalendar, { whitelist: true, forbidNonWhitelisted: true });
   if (errors.length) return res.status(400).json(errors);
-  let toUpdateCalendar = plainToClass(Calendar, createCalendar);
 
   const calendar = await getCalendarById(req.params.id);
-  if (!calendar) return res.status(404);
+  if (!calendar) return res.status(404).send();
 
-  AppDataSource.getRepository(Calendar).merge(calendar, toUpdateCalendar);
+  AppDataSource.getRepository(Calendar).merge(calendar, createCalendar);
   if (!checkUrl(calendar.url)) return res.status(400).send();
 
   const results = await AppDataSource.getRepository(Calendar).save(calendar);
 
-  if (results === null) res.status(404).send();
+  if (results === null) return res.status(404).send();
   return res.send(results);
 });
 
