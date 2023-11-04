@@ -8,7 +8,6 @@ export const load: PageLoad = async ({ url }) => {
 		return { settings: null };
 	}
 	const id = url.searchParams.get('id');
-	console.log(id);
 
 	const elephantBackend = new URL(`${PUBLIC_CALENDAR_ROUTE}/${id}/settings`, PUBLIC_BACKEND);
 	let res = null;
