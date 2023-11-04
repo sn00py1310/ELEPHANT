@@ -7,7 +7,7 @@
 
 	export const send = (id: string | null) => {
 		const elephantBackend = new URL(
-			PUBLIC_CALENDAR_ROUTE + id ? `/${id}/settings` : '',
+			PUBLIC_CALENDAR_ROUTE + (id ? `/${id}/settings` : ''),
 			PUBLIC_BACKEND
 		);
 		return fetch(elephantBackend, {
