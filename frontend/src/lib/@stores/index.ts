@@ -1,6 +1,11 @@
 import { derived, writable, get } from 'svelte/store';
 import type { SimpleReplacement } from '../@types/Api';
 import { escapeHtml } from '../@util';
+const DEFAULT_REQUEST_ENTRY: SimpleReplacement = {
+	mode: 'globalRegex',
+	replacement: '',
+	pattern: ''
+};
 
 export const icsData = writable('');
 export const regex = writable('');
@@ -20,29 +25,67 @@ export const newIcsData = derived([icsData, _regex, replace], ([ics, regex, repl
 );
 
 const createApiRequestStore = () => {
-	let last: (SimpleReplacement | null)[] = [];
+	const history: SimpleReplacement[] = [DEFAULT_REQUEST_ENTRY];
+	const icsHistory: { old: string[]; new: string[] } = { old: [], new: [] };
 	const { subscribe } = derived([_regex, replace], ([{ source }, replacement]) => {
-		last[0] = {
+		const newEntry: SimpleReplacement = {
 			mode: 'globalRegex',
 			replacement,
 			pattern: source
 		};
-		return last as SimpleReplacement[];
+		history[history.length - 1] = newEntry;
+		return history;
 	});
 
 	return {
 		addReg: () => {
-			last = [null, ...last];
+			icsHistory.old.push(get(icsData));
+			icsHistory.new.push(get(newIcsData));
+			history.push(DEFAULT_REQUEST_ENTRY);
+
 			icsData.set(get(newIcsData));
-			const currentReplace = get(replace);
-			replace.set('x'); // This is very ugly but it will update this current store by updating the origin stores.
-			replace.set(currentReplace); // Need to set "x" and then remove to ignore sveltes default destinctUntilChange I guess
+			replace.set(crypto.randomUUID()); // Trigger derived
+			replace.set('');
+		},
+		addRegs: (_history: SimpleReplacement[]) => {
+			history.splice(0, history.length, ..._history);
+			icsHistory.old.splice(0, icsHistory.old.length, get(icsData));
+			icsHistory.new.splice(0, icsHistory.new.length);
+
+			for (const { pattern, replacement } of history) {
+				const replaced = icsHistory.old[icsHistory.old.length - 1].replace(
+					new RegExp(pattern, 'g'),
+					replacement
+				);
+				icsHistory.new.push(replaced);
+				icsHistory.old.push(replaced);
+			}
+			icsData.set(icsHistory.old[icsHistory.old.length - 1]);
+			history.push(DEFAULT_REQUEST_ENTRY);
+
+			replace.set(crypto.randomUUID()); // Trigger derived
+			replace.set('');
 		},
 		remove: (index: number) => {
-			last = last.slice(0, index).concat(last.slice(index + 1));
-			const currentReplace = get(replace);
-			replace.set('x');
-			replace.set(currentReplace);
+			const replacement = history.splice(index, 1)[0];
+			icsHistory.old.splice(index + 1, icsHistory.old.length - 1);
+			icsHistory.new.splice(index, icsHistory.new.length - 1);
+
+			for (const { pattern, replacement } of history.slice(index, history.length - 1)) {
+				const replaced = icsHistory.old[icsHistory.old.length - 1].replace(
+					new RegExp(pattern, 'g'),
+					replacement
+				);
+				icsHistory.new.push(replaced);
+				icsHistory.old.push(replaced);
+			}
+
+			icsData.set(icsHistory.old[icsHistory.old.length - 1]);
+
+			regex.set(crypto.randomUUID()); // Trigger derived
+			regex.set(replacement.pattern);
+			replace.set(crypto.randomUUID()); // Trigger derived
+			replace.set(replacement.replacement);
 		},
 		subscribe
 	};

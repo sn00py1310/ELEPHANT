@@ -8,7 +8,7 @@
 
 <div id="dash">
 	<div class="left row">
-		<RegexFilter on:regexChange={({ detail }) => ($regex = detail)} />
+		<RegexFilter on:regexChange={({ detail }) => ($regex = detail)} value={$regex} />
 		<textarea
 			placeholder="Replacement (you can also use matching groups -> $1)"
 			bind:value={$replace}

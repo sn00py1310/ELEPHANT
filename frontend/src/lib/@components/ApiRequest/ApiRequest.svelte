@@ -29,6 +29,9 @@
 			{#each $apiRequest as replacement, i}
 				<div id="boxReplacement">
 					<div id="textReplacement">
+						<span style="margin: auto">
+							{i}
+						</span>
 						<div>
 							{replacement.pattern}
 						</div>
