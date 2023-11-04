@@ -4,11 +4,14 @@
 
 	export let url = '';
 	let blockView = true;
-	const elephantBackend = new URL(PUBLIC_CALENDAR_ROUTE, PUBLIC_BACKEND);
 
-	export const send = () => {
+	export const send = (id: string | null) => {
+		const elephantBackend = new URL(
+			PUBLIC_CALENDAR_ROUTE + id ? `/${id}/settings` : '',
+			PUBLIC_BACKEND
+		);
 		return fetch(elephantBackend, {
-			method: 'POST',
+			method: id ? 'PUT' : 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify(generated)
 		});
