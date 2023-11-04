@@ -34,7 +34,7 @@
 			.then((x) => x.json())
 			.then(({ id }: { id: string }) => {
 				localStorage.setItem('id', id);
-				goto(`${id}/finish`);
+				goto(`finish?id=${id}`);
 			});
 	};
 
